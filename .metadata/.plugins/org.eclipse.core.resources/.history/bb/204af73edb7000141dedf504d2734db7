@@ -1,0 +1,153 @@
+import java.io.IOException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+public class QuestionAnswer {
+
+	/**
+	 * @param args
+	 */
+
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		try {
+			HashMap<String,Integer> totalDocWordCount=new HashMap<String,Integer>();
+
+			
+			//df_i
+			for (File file : new File("/home/amal/Downloads/NewCategoryIdentification/xml").listFiles()) 
+			{
+				HashMap<String,Integer> EachDocWordCount=new HashMap<String,Integer>();
+			//  System.out.println("-----------------------");
+			  DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			  DocumentBuilder db = dbf.newDocumentBuilder();
+			  Document doc = db.parse(file);
+			  doc.getDocumentElement().normalize();
+			  //System.out.println("Root element " + doc.getDocumentElement().getNodeName());
+			  NodeList nodeLst = doc.getElementsByTagName("Question");
+			//  System.out.println("Allquestions");
+
+		int s=0;
+			    Node fstNode = nodeLst.item(s);
+			    
+			    if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
+			  
+			           Element fstElmnt = (Element) fstNode;
+			      NodeList fstNmElmntLst = fstElmnt.getElementsByTagName("Subject");
+			      Element fstNmElmnt = (Element) fstNmElmntLst.item(0);
+			      NodeList fstNm = fstNmElmnt.getChildNodes();
+			//      System.out.println("Question : "  + ((Node) fstNm.item(0)).getNodeValue());
+			      NodeList lstNmElmntLst = fstElmnt.getElementsByTagName("ChosenAnswer");
+			      Element lstNmElmnt = (Element) lstNmElmntLst.item(0);
+			      NodeList lstNm = lstNmElmnt.getChildNodes();
+			      if((lstNm.item(0))!=null)
+			      {
+			    	String answer= (lstNm.item(0)).getNodeValue().toString();
+			    	String[] arr = answer.split("\\s+");
+			    	int word_strt;
+			    	
+			    	for(word_strt=0;word_strt<arr.length;word_strt++)
+			    	{
+			    	if(totalDocWordCount.containsKey(arr[word_strt]) && !EachDocWordCount.containsKey(arr[word_strt]) )
+			    	totalDocWordCount.put(arr[word_strt],totalDocWordCount.get(arr[word_strt])+1);
+			    		elseif(!EachDocWordCount.containsKey(arr[word_strt]) )
+			    			totalDocWordCount.put(arr[word_strt],1);
+			    	EachDocWordCount.put(arr[word_strt],1);
+			    	
+			    	}
+			   
+			      }
+			    }
+
+			  
+			  
+			  }
+			
+			System.out.println("stage 1 over");
+			//D1,D2
+			for (File file : new File("/home/amal/Downloads/NewCategoryIdentification/xml").listFiles()) 
+			{
+				HashMap<String,Integer> EachDocWordCount=new HashMap<String,Integer>();
+			 // System.out.println("-----------------------");
+			  DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			  DocumentBuilder db = dbf.newDocumentBuilder();
+			  Document doc = db.parse(file);
+			  doc.getDocumentElement().normalize();
+			  //System.out.println("Root element " + doc.getDocumentElement().getNodeName());
+			  NodeList nodeLst = doc.getElementsByTagName("Question");
+			//  System.out.println("Allquestions");
+
+			 int s=0;
+
+			    Node fstNode = nodeLst.item(s);
+			    
+			    if (fstNode.getNodeType() == Node.ELEMENT_NODE) {
+			  
+			           Element fstElmnt = (Element) fstNode;
+			      NodeList fstNmElmntLst = fstElmnt.getElementsByTagName("Subject");
+			      Element fstNmElmnt = (Element) fstNmElmntLst.item(0);
+			      NodeList fstNm = fstNmElmnt.getChildNodes();
+			     // System.out.println("Question : "  + ((Node) fstNm.item(0)).getNodeValue());
+			      NodeList lstNmElmntLst = fstElmnt.getElementsByTagName("ChosenAnswer");
+			      Element lstNmElmnt = (Element) lstNmElmntLst.item(0);
+			      NodeList lstNm = lstNmElmnt.getChildNodes();
+			      if((lstNm.item(0))!=null)
+			      {
+			    	String answer= (lstNm.item(0)).getNodeValue().toString();
+			    	String[] arr = answer.split("\\s+");
+			    	int word_strt;
+			    	for(word_strt=0;word_strt<arr.length;word_strt++)
+			    	{
+			    		if(EachDocWordCount.containsKey(arr[word_strt]))
+			    			EachDocWordCount.put(arr[word_strt],EachDocWordCount.get(arr[word_strt])+1);
+			    		else
+			    			EachDocWordCount.put(arr[word_strt],1);
+			    	}
+			    	
+			    	  Iterator it = EachDocWordCount.entrySet().iterator();
+			    	    while (it.hasNext()) {
+			    	        Map.Entry pairs = (Map.Entry)it.next();
+			    	    //    System.out.println(pairs.getKey() + " = " + pairs.getValue());
+			    	        int dfi=totalDocWordCount.get(pairs.getKey().toString());
+			    	        int D=(Integer) pairs.getValue();
+			    	        double IDFi=Math.log((double) D/dfi);
+			    	        System.out.print (" word "+pairs.getKey()+ " IDFi "+IDFi);
+			    	        it.remove(); // avoids a ConcurrentModificationException
+			    	    }
+			    	    System.out.println();
+			    	    System.out.println("file over");
+			      }
+			    }
+
+			  
+			  
+			  
+			  
+			  
+			  }
+			System.out.println("over parsing files");
+			}catch (Exception e) {
+			    e.printStackTrace();
+			  }
+	}
+	
+
+}
